@@ -10,6 +10,8 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from dotenv import load_dotenv
+
 if __package__ in (None, ""):
     # Allow running ``streamlit run app/main.py`` without installing the package.
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -35,6 +37,8 @@ from app.utils.validators import require_non_empty
 
 configure_logging()
 _LOGGER = get_logger(__name__)
+
+load_dotenv()
 
 st.set_page_config(page_title="RAG Ingestor", layout="wide")
 st.title("Enterprise RAG Ingestor for Azure AI Search")
