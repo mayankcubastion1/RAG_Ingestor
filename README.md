@@ -48,17 +48,11 @@ app/
    - Azure OpenAI resource with an embedding deployment
    - Azure Storage account with a container for ingestion
    - Optional: Cosmos DB for MongoDB vCore or Azure Database for PostgreSQL with pgvector
-3. Recommended Python packages (install via `pip install -r requirements.txt`):
-   - `streamlit`
-   - `azure-search-documents`
-   - `azure-identity`
-   - `azure-storage-blob`
-   - `pandas`
-   - `pdfplumber`
-   - `openai`
-   - `backoff`
+3. Install dependencies:
 
-> **Note:** The repository does not include a `requirements.txt`. Install packages manually or generate one based on the list above.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Configuration
 
@@ -76,11 +70,14 @@ When running in Azure, the app prefers Managed Identity / AAD credentials via `D
 
 ## Running the app
 
-```bash
-streamlit run app/main.py
-```
+1. Install dependencies as shown above.
+2. Launch Streamlit from the repository root:
 
-Set the required environment variables before launching. The app will prompt for missing values within the sidebar.
+   ```bash
+   streamlit run app/main.py
+   ```
+
+3. Set the required environment variables before launching (or provide them in the sidebar when prompted).
 
 ## Usage overview
 
