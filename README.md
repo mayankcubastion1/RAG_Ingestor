@@ -78,6 +78,8 @@ When running in Azure, the app prefers Managed Identity / AAD credentials via `D
    ```
 
 3. Set the required environment variables before launching (or provide them in the sidebar when prompted).
+   The app now loads a local `.env` file automatically at startup via [`python-dotenv`](https://pypi.org/project/python-dotenv/),
+   ensuring secrets such as `AZURE_OPENAI_API_KEY` are available for push ingestion even when not exported globally.
 
 ## Usage overview
 
