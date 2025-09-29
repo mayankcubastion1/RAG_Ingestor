@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+
+if __package__ in (None, ""):
+    # Allow running ``streamlit run app/main.py`` without installing the package.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 import streamlit as st
@@ -16,17 +21,17 @@ from azure.search.documents import SearchClient  # type: ignore
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient  # type: ignore
 from azure.storage.blob import BlobServiceClient  # type: ignore
 
-from .azure_search.aliases import AliasOptions, swap_alias
-from .azure_search.index_schema import IndexSchemaOptions, VectorConfig, build_index_schema
-from .azure_search.indexers import DataSourceOptions, IndexerOptions, ensure_data_source, ensure_indexer, run_indexer
-from .azure_search.push_pipeline import PushIngestionPipeline, PushPipelineConfig, collect_chunks_from_text
-from .azure_search.rbac import get_default_credential, resolve_search_credential
-from .azure_search.skillsets import SkillsetOptions, build_skillset, build_skillset_payload
-from .chunking.textsplit_chunker import TextSplitOptions
-from .embeddings.azure_openai import EmbeddingConfig
-from .utils import hashing
-from .utils.logging import configure_logging, get_logger
-from .utils.validators import require_non_empty
+from app.azure_search.aliases import AliasFeatureUnavailableError, AliasOptions, alias_feature_status, swap_alias
+from app.azure_search.index_schema import IndexSchemaOptions, VectorConfig, build_index_schema
+from app.azure_search.indexers import DataSourceOptions, IndexerOptions, ensure_data_source, ensure_indexer, run_indexer
+from app.azure_search.push_pipeline import PushIngestionPipeline, PushPipelineConfig, collect_chunks_from_text
+from app.azure_search.rbac import get_default_credential, resolve_search_credential
+from app.azure_search.skillsets import SkillsetOptions, build_skillset, build_skillset_payload
+from app.chunking.textsplit_chunker import TextSplitOptions
+from app.embeddings.azure_openai import EmbeddingConfig
+from app.utils import hashing
+from app.utils.logging import configure_logging, get_logger
+from app.utils.validators import require_non_empty
 
 configure_logging()
 _LOGGER = get_logger(__name__)
@@ -158,14 +163,20 @@ with index_tab:
                 st.error(f"Failed to create index: {exc}")
 
     st.subheader("Aliases")
+    alias_supported, alias_message = alias_feature_status()
+    if alias_message:
+        st.info(alias_message)
+
     alias_name = st.text_input("Alias name", value=f"{search_index or 'rag-index'}-alias")
     target_index_name = st.text_input("New index version", value=f"{search_index or 'rag-index'}_v{int(time.time())}")
 
-    if st.button("Swap alias"):
+    if st.button("Swap alias", disabled=not alias_supported):
         try:
             index_client = SearchIndexClient(endpoint=search_endpoint, credential=credential)
             alias = swap_alias(index_client, AliasOptions(alias_name=alias_name, index_name=target_index_name))
             st.success(f"Alias swapped: {alias.name} -> {target_index_name}")
+        except AliasFeatureUnavailableError as exc:
+            st.error(str(exc))
         except AzureError as exc:  # pragma: no cover - network call
             st.error(f"Failed to swap alias: {exc}")
 

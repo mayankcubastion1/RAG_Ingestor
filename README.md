@@ -10,7 +10,7 @@ This repository contains a production-ready Streamlit application for ingesting 
   - **Push API** for client-side chunking, embeddings, and bulk upload
 - Rich configuration for chunking, table extraction, image captioning, and embeddings
 - Index schema builder with vector search configuration and semantic options
-- Alias management for versioned indexes
+- Alias management for versioned indexes *(requires the Azure Search preview SDK)*
 - Hybrid search test console with semantic reranking
 - Export utilities for Infrastructure-as-Code definitions and environment templates
 
@@ -48,17 +48,15 @@ app/
    - Azure OpenAI resource with an embedding deployment
    - Azure Storage account with a container for ingestion
    - Optional: Cosmos DB for MongoDB vCore or Azure Database for PostgreSQL with pgvector
-3. Recommended Python packages (install via `pip install -r requirements.txt`):
-   - `streamlit`
-   - `azure-search-documents`
-   - `azure-identity`
-   - `azure-storage-blob`
-   - `pandas`
-   - `pdfplumber`
-   - `openai`
-   - `backoff`
+3. Install dependencies:
 
-> **Note:** The repository does not include a `requirements.txt`. Install packages manually or generate one based on the list above.
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   > **Note:** Azure Search index alias APIs are only available in preview builds of
+   > `azure-search-documents`. Install `azure-search-documents==11.6.0b12` (or a newer
+   > beta) if you plan to manage aliases from the UI.
 
 ## Configuration
 
@@ -76,11 +74,14 @@ When running in Azure, the app prefers Managed Identity / AAD credentials via `D
 
 ## Running the app
 
-```bash
-streamlit run app/main.py
-```
+1. Install dependencies as shown above.
+2. Launch Streamlit from the repository root:
 
-Set the required environment variables before launching. The app will prompt for missing values within the sidebar.
+   ```bash
+   streamlit run app/main.py
+   ```
+
+3. Set the required environment variables before launching (or provide them in the sidebar when prompted).
 
 ## Usage overview
 
