@@ -8,7 +8,10 @@ This repository contains a production-ready Streamlit application for ingesting 
 - Dual pipelines:
   - **Indexer + Skillset** for pull-based ingestion from Blob Storage
   - **Push API** for client-side chunking, embeddings, and bulk upload
+  - **Shop Manual** pipeline with automated OCR, chunking, and Azure AI Search indexing
+- Real-time pizza/Uber Eats-inspired progress tracker for long-running shop manual ingestions
 - Rich configuration for chunking, table extraction, image captioning, and embeddings
+- Visual dashboards for embeddings, mapping tables, and blob storage inventory
 - Index schema builder with vector search configuration and semantic options
 - Alias management for versioned indexes
 - Hybrid search test console with semantic reranking
@@ -60,11 +63,17 @@ Create an `.env` file (see [.env.sample](./.env.sample)) or export the following
 
 - `AZURE_SEARCH_ENDPOINT`
 - `AZURE_SEARCH_INDEX`
+- `AZURE_SEARCH_ADMIN_KEY`
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_EMBED_DEPLOYMENT`
+- `AZURE_OPENAI_API_KEY`
+- `AZURE_OPENAI_API_VERSION`
 - `AZURE_STORAGE_ACCOUNT_URL`
 - `AZURE_STORAGE_CONNECTION_STRING` (for indexer data source creation)
-- Optional: `AZURE_SEARCH_API_KEY` for API key authentication
+- `AZURE_DOC_INTELLIGENCE_ENDPOINT` (for shop manual pipeline)
+- `AZURE_DOC_INTELLIGENCE_KEY` (for shop manual pipeline)
+- `AZURE_DOC_INTELLIGENCE_MODEL` (defaults to `prebuilt-layout`)
+- Optional: `AZURE_SEARCH_API_KEY` for query-time API key authentication
 
 When running in Azure, the app prefers Managed Identity / AAD credentials via `DefaultAzureCredential`.
 
@@ -84,12 +93,13 @@ When running in Azure, the app prefers Managed Identity / AAD credentials via `D
 ## Usage overview
 
 1. **Configure connections** on the sidebar. Choose authentication mode and supply Azure endpoints.
-2. **Select ingestion source and pipeline** in the Pipeline tab. For uploads, stage files locally or push to Blob Storage when using the indexer path.
-3. **Adjust chunking and embedding settings**. Client-side pipeline offers paragraph/sentence/page chunking, optional quantization, and local embedding generation.
+2. **Select ingestion source and pipeline** in the Pipeline tab. For uploads, stage files locally or push to Blob Storage when using the indexer path. The shop manual pipeline accepts PDF uploads and optional mapping CSV files.
+3. **Adjust chunking and embedding settings**. Client-side and shop-manual pipelines offer slider-based tuning, optional quantization, and local embedding generation.
 4. **Design the index** in the Index tab, then create/update it directly from the UI. Manage aliases to swap traffic between versions.
-5. **Run ingestion** via the Run tab. For indexer mode, the app provisions the data source, skillset, and indexer before triggering execution. For push mode, it shows per-file progress, chunk counts, and embedding activity.
-6. **Validate search quality** using the Verify tab. Perform hybrid text + vector queries and inspect merged results.
-7. **Export definitions** for automation. Download the index and skillset JSON definitions alongside an environment template.
+5. **Run ingestion** via the Run tab. For indexer mode, the app provisions the data source, skillset, and indexer before triggering execution. For push mode, it shows per-file progress, chunk counts, and embedding activity. The shop manual pipeline streams pizza-style status updates while converting PDFs, extracting text with Azure Document Intelligence, and pushing vectors.
+6. **Visualize results** with the new Visualize tab. Inspect embedding distributions, verify mapping tables, and browse blob inventory snapshots.
+7. **Validate search quality** using the Verify tab. Perform hybrid text + vector queries and inspect merged results.
+8. **Export definitions** for automation. Download the index and skillset JSON definitions alongside an environment template that includes all required secrets.
 
 ## Extensibility
 
